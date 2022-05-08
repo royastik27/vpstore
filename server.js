@@ -62,15 +62,24 @@ app.post('/productsapi', async (req, res) =>
     //DATABASE CONNECTION
     await db.connect();
 
-    const result = await db.db('vpstore').collection('products').findOne( {productName: productName} );
-
-    const casePrice = result.casePrice;
-    const price = result.price;
+    const result = await db.db('vpstore').collection('products').findOne({ productName: new RegExp(productName, 'i') });
 
     // CLOSING DATABASE CONNECTION
     await db.close();
 
-    res.send( { productName: productName, casePrice: casePrice, price: price });
+    if(!result) res.send({ success: false, message: "NOT FOUND!"});
+    else
+    {
+        const productName = result.productName;
+        const casePrice = result.casePrice;
+        const price = result.price;        
+    
+        res.send( { success: true, data: {
+            productName: productName,
+            casePrice: casePrice,
+            price: price }
+        } );
+    }
 });
 
 app.get('/logout', (req, res) =>
