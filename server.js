@@ -14,6 +14,7 @@ require('dotenv').config();
 const db = new MongoClient(process.env.MONGODB_URL);
 
 app.use(express.urlencoded( {extended: true} ));
+app.use(express.json());
 app.use(session({resave: true, saveUninitialized: true, secret: 'amK2meAsirbaadKaro', cookie: { }}));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
@@ -46,15 +47,46 @@ app.use((req, res, next) =>
 {
     const mySession = req.session;
 
+    // DELETE THIS
+        mySession.username = 'royastik27';
+        mySession.loggedIn = true;
+
     if(!mySession.loggedIn) res.end(templateLogin);
     else next();
 });
 
-app.get('/', (req, res) =>
+app.post('/productsapi', async (req, res) =>
+{
+    const productName = req.body.productName;
+
+    //DATABASE CONNECTION
+    await db.connect();
+
+    const result = await db.db('vpstore').collection('products').findOne( {productName: productName} );
+
+    const casePrice = result.casePrice;
+    const price = result.price;
+
+    // CLOSING DATABASE CONNECTION
+    await db.close();
+
+    res.send( { productName: productName, casePrice: casePrice, price: price });
+});
+
+app.get('/logout', (req, res) =>
+{
+    req.session.destroy();
+
+    res.redirect('/');
+});
+
+app.get('/*', (req, res) =>
 {
     const templateDashboard = fs.readFileSync(path.join(__dirname, 'templates/dashboard.html'), 'utf-8');
 
-    res.send(templateDashboard);
+    let output = templateDashboard.replace('{%USER%}', req.session.username);
+
+    res.send(output);
 });
 
 app.listen(80, () =>
