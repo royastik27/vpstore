@@ -8,6 +8,7 @@ let itemNumber = 0;
 const controller = (function()
 {
     let totalPrice, itemNumber;
+    const items = [];
     /**
      * itemNumber:  1 based [ table row: 0 based - 1st one is thead ]
     **/
@@ -16,7 +17,7 @@ const controller = (function()
 
     const validateItem = function(item)
     {
-        if(!caseamount && !quantity)
+        if(!item.caseAmountmount && !item.quantity)
         {
             DOM.DOMelements.errorEl.textContent = 'Invalid Input!';
             return false;
@@ -25,23 +26,78 @@ const controller = (function()
         return true;
     }
 
+    const findItem = async function(productName)
+    {
+        let options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 
+                    'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({ productName: productName })
+        }
+    
+        const res = await(await fetch("/productsapi", options)).json();
+    
+        return res;
+    }
+
+    const createItem = function(DOMitem, item)
+    {
+        // CALCULATING
+        let price = 0;
+
+        if(DOMitem.caseamount)  price += item.casePrice * DOMitem.caseamount;
+
+        if(DOMitem.quantity) price += item.price * DOMitem.quantity;
+
+        if(DOMitem.retail) price = item.mrp * DOMitem.quantity;
+
+        return {
+            serialNo: ++itemNumber,
+            productName: item.productName,
+            caseAmount: DOMitem.caseAmount,
+            quantity: DOMitem.quantity,
+            price: (DOMitem.stationary) ? item.price : item.mrp,
+            totalPrice: price
+        }
+    }
+
     return {
         getItemNumber: () => itemNumber,
         init: function(){
             totalPrice = itemNumber = 0;            
-            // DOM.clearTable();            
+            DOM.clearTable();            
         },
-        addItem: function() {
-            const item = DOM.getItem();
+        addItem: async function() {
+            const DOMitem = DOM.getItem();
 
             // FILTERING
-            if(isNaN(item.caseamount)) item.caseamount = 0;
-            if(isNaN(item.quantity)) item.quantity = 0;
+            if(isNaN(DOMitem.caseAmount)) DOMitem.caseAmount = 0;
+            if(isNaN(DOMitem.quantity)) DOMitem.quantity = 0;
 
-            if(validateItem(item))
+            // VALIDATING
+            if(!validateItem(DOMitem)) return;
+
+            // GETTING DATA FROM API
+            const res = await findItem(DOMitem.productName);
+
+            if(!res.success)
             {
-                // do something
+                DOM.DOMelements.errorEl.textContent = 'NOT FOUND!';
+                return;
             }
+
+            const item = res.data;  // got data
+
+            const newItem = createItem(DOMitem, item);
+
+            // UPDATING CONTROLLER
+            items.push(newItem);
+            totalPrice += newItem.totalPrice;
+
+            // UPDATING DOM
+            DOM.addItem(newItem);
         }
     }
 })();
@@ -51,7 +107,7 @@ const DOM = (function()
     const DOMtable = document.getElementById('product-list');
     const DOMerrorEl = document.getElementById('show-error');
 
-    // GET ITEM VALUES FROM DOM
+    // INPUT DOMs
     const DOMproductName = document.getElementById('product-name');
     const DOMcaseAmount = document.getElementById('caseamount');
     const DOMquantity = document.getElementById('quantity');
@@ -77,12 +133,38 @@ const DOM = (function()
                 stationary: DOMstationary.checked,
                 retail: DOMretail.checked
             }
+        },
+        addItem: function(item) {
+
+            // CLEARING ERROR FIELD
+            DOMerrorEl.textContent = '';
+
+            const row = DOMtable.insertRow(item.serialNo); // same as controller.getItemNumber()
+
+            // TABLE CELL SERIAL
+            const SLNO = row.insertCell(0);
+            const PRODUCTNAME = row.insertCell(1);
+            const CASEAMOUNT = row.insertCell(2);
+            const QUANTITY = row.insertCell(3);    
+            const PRICE = row.insertCell(4);
+            const TOTALPRICE = row.insertCell(5);
+
+            // CELL CONTENTS
+            SLNO.innerHTML = item.serialNo;
+            PRODUCTNAME.innerHTML = item.productName;
+
+            if(item.caseamount)  CASEAMOUNT.innerHTML = item.caseAmount;
+            if(item.quantity)    QUANTITY.innerHTML = item.quantity;    
+            
+            PRICE.innerHTML = item.price;
+            
+            TOTALPRICE.innerHTML = item.price;
         }
     }
 })();
 
 // TESTING
-// controller.init();
+controller.init();
 
 async function getItem(productName)
 {      
@@ -170,5 +252,5 @@ async function addItem()
 document.getElementById('input').addEventListener('keypress', function(event) {
 
     if (event.key === "Enter")
-        addItem();  // CHANGE to controllr.addItem()
+        addItem();  // CHANGE to controller.addItem()
 });

@@ -12,3 +12,4 @@ paid amount
 paid = true / false
 
 SOLVE: Double add issue - Enter key preventDefault()
+Issue 2 - Input Caseamount in Retail
