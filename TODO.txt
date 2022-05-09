@@ -1,1 +1,12 @@
 1. Add Hashing
+
+memo collection(Table)
+
+Memo ID
+Customer Name
+User ID
+Date-Time [ Store as JS time]
+Product List [ Array of Objects ]
+Total Amount
+paid amount
+paid = true / false

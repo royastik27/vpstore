@@ -5,6 +5,28 @@ document.getElementById('date').textContent = `Date: ${date.toLocaleDateString()
 
 let itemNumber = 0;
 
+const controller = (function()
+{
+    let totalPrice = 10;
+
+    const updatePrice = function(newPrice) { totalPrice = newPrice; }
+
+    const clearDOM = function()
+    {
+        // do something spicy here
+    }
+
+    return {
+        init: function(){
+            updatePrice(0);
+            clearDOM();
+        }
+    }
+})();
+
+// TESTING
+controller.init();
+
 async function getItem(productName)
 {      
     let options = {
@@ -20,7 +42,6 @@ async function getItem(productName)
 
     return res;
 }
-
 
 async function addItem()
 {
@@ -100,6 +121,5 @@ document.getElementById('input').addEventListener('keypress', function(event) {
         addItem();
     //   event.preventDefault();
     //   document.getElementById("testBtn").click();
-
     }
 });
