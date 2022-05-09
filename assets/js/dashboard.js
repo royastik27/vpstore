@@ -43,18 +43,20 @@ async function addItem()
     const res = await getItem(productName);
 
     // ERROR HANDLING
+    const errorEl = document.getElementById('show-error');
     if(!caseamount && !quantity)
     {
-        document.getElementById('show-error').textContent = 'Invalid Input!';
+        errorEl.textContent = 'Invalid Input!';
         return;
     }
     else if(!res.success)
     {
-        document.getElementById('show-error').textContent = res.message;
+        errorEl.textContent = res.message;
         return;
     }
-    document.getElementById('show-error').textContent = '';
+    errorEl.textContent = '';
 
+    // SETTING DATA
     const item = res.data;
 
     // CALCULATING
@@ -63,6 +65,8 @@ async function addItem()
     if(caseamount)  price += item.casePrice * caseamount;
 
     if(quantity) price += item.price * quantity;
+
+    if(retail) price = item.mrp * quantity;
 
     // UPDATING DOM
     const el = document.getElementById('product-list');
@@ -84,7 +88,8 @@ async function addItem()
     if(caseamount)  CASEAMOUNT.innerHTML = caseamount;
     if(quantity)    QUANTITY.innerHTML = quantity;    
     
-    PRICE.innerHTML = item.price;
+    if(stationary)  PRICE.innerHTML = item.price;
+    else PRICE.innerHTML = item.mrp;
     
     TOTALPRICE.innerHTML = price;
 }

@@ -73,11 +73,13 @@ app.post('/productsapi', async (req, res) =>
         const productName = result.productName;
         const casePrice = result.casePrice;
         const price = result.price;        
+        const mrp = result.mrp;        
     
         res.send( { success: true, data: {
             productName: productName,
             casePrice: casePrice,
-            price: price }
+            price: price,
+            mrp: mrp }
         } );
     }
 });
