@@ -7,25 +7,82 @@ let itemNumber = 0;
 
 const controller = (function()
 {
-    let totalPrice = 10;
+    let totalPrice, itemNumber;
+    /**
+     * itemNumber:  1 based [ table row: 0 based - 1st one is thead ]
+    **/
 
-    const updatePrice = function(newPrice) { totalPrice = newPrice; }
+    const addTotalPrice = function(newPrice) { totalPrice += newPrice; }
 
-    const clearDOM = function()
+    const validateItem = function(item)
     {
-        // do something spicy here
+        if(!caseamount && !quantity)
+        {
+            DOM.DOMelements.errorEl.textContent = 'Invalid Input!';
+            return false;
+        }
+
+        return true;
     }
 
     return {
+        getItemNumber: () => itemNumber,
         init: function(){
-            updatePrice(0);
-            clearDOM();
+            totalPrice = itemNumber = 0;            
+            // DOM.clearTable();            
+        },
+        addItem: function() {
+            const item = DOM.getItem();
+
+            // FILTERING
+            if(isNaN(item.caseamount)) item.caseamount = 0;
+            if(isNaN(item.quantity)) item.quantity = 0;
+
+            if(validateItem(item))
+            {
+                // do something
+            }
+        }
+    }
+})();
+
+const DOM = (function()
+{
+    const DOMtable = document.getElementById('product-list');
+    const DOMerrorEl = document.getElementById('show-error');
+
+    // GET ITEM VALUES FROM DOM
+    const DOMproductName = document.getElementById('product-name');
+    const DOMcaseAmount = document.getElementById('caseamount');
+    const DOMquantity = document.getElementById('quantity');
+    const DOMstationary = document.getElementById('stationary');
+    const DOMretail = document.getElementById('retail');
+
+    return {
+        DOMelements: {
+            table: DOMtable,
+            errorEl: DOMerrorEl
+        },
+        clearTable: function() {
+            const itemNumber = controller.getItemNumber();
+
+            for(let i = 0; i < itemNumber; ++i)
+                DOMtable.deleteRow(1);  // always clearing first row
+        },
+        getItem: function() {
+            return {
+                productName: DOMproductName.value,
+                caseAmount: parseInt(DOMcaseAmount.value),
+                quantity: parseInt(DOMquantity.value),
+                stationary: DOMstationary.checked,
+                retail: DOMretail.checked
+            }
         }
     }
 })();
 
 // TESTING
-controller.init();
+// controller.init();
 
 async function getItem(productName)
 {      
@@ -45,6 +102,7 @@ async function getItem(productName)
 
 async function addItem()
 {
+    // GET ITEM VALUES FROM DOM
     const productName = document.getElementById('product-name').value;
     let caseamount = parseInt(document.getElementById('caseamount').value);
     let quantity = parseInt(document.getElementById('quantity').value);
@@ -53,12 +111,6 @@ async function addItem()
 
     if(isNaN(caseamount)) caseamount = 0;
     if(isNaN(quantity)) quantity = 0;
-
-    // console.log(typeof productName);
-    // console.log(caseamount);
-    // console.log(quantity);
-    // console.log(typeof stationary);
-    // console.log(typeof retail);
 
     // GETTING DATA
     const res = await getItem(productName);
@@ -117,9 +169,6 @@ async function addItem()
 
 document.getElementById('input').addEventListener('keypress', function(event) {
 
-    if (event.key === "Enter") {
-        addItem();
-    //   event.preventDefault();
-    //   document.getElementById("testBtn").click();
-    }
+    if (event.key === "Enter")
+        addItem();  // CHANGE to controllr.addItem()
 });

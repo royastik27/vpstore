@@ -10,3 +10,5 @@ Product List [ Array of Objects ]
 Total Amount
 paid amount
 paid = true / false
+
+SOLVE: Double add issue - Enter key preventDefault()
