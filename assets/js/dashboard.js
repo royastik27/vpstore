@@ -70,6 +70,8 @@ const controller = (function()
         init: function(){
             totalPrice = itemNumber = 0;            
             DOM.clearTable();
+            DOM.DOMelements.totalPrice.textContent = totalPrice;
+            DOM.DOMelements.saveMemo.classList.add('disabled');
         },
         addItem: async function() {
             const DOMitem = DOM.getItem();
@@ -99,7 +101,7 @@ const controller = (function()
             totalPrice += newItem.totalPrice;
 
             // UPDATING DOM
-            DOM.addItem(newItem);
+            DOM.addItem(newItem, totalPrice);
         }
     }
 })();
@@ -117,11 +119,15 @@ const DOM = (function()
     const DOMretail = document.getElementById('retail');
 
     const DOMcustomerName = document.getElementById('customer-name');
+    const DOMtotalPrice = document.getElementById('total-price');
+    const DOMsaveMemo = document.getElementById('save-memo');
 
     return {
         DOMelements: {
             table: DOMtable,
-            errorEl: DOMerrorEl
+            errorEl: DOMerrorEl,
+            totalPrice: DOMtotalPrice,
+            saveMemo: DOMsaveMemo
         },
         clearTable: function() {
             const itemNumber = controller.getItemNumber();
@@ -138,10 +144,11 @@ const DOM = (function()
                 retail: DOMretail.checked
             }
         },
-        addItem: function(item) {
+        addItem: function(item, totalPrice) {
 
             // CLEARING ERROR FIELD
             DOMerrorEl.textContent = '';
+            DOMsaveMemo.classList.remove('disabled');
 
             const row = DOMtable.insertRow(item.serialNo); // same as controller.getItemNumber()
 
@@ -163,6 +170,8 @@ const DOM = (function()
             PRICE.innerHTML = item.price;
             
             TOTALPRICE.innerHTML = item.totalPrice;
+
+            DOMtotalPrice.textContent = totalPrice;
         }
     }
 })();

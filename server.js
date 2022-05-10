@@ -11,7 +11,8 @@ const app = express();
 require('dotenv').config();
 
 // DATABASE CLIENT
-const db = new MongoClient(process.env.MONGODB_URL);
+// const db = new MongoClient(process.env.MONGODB_URL);
+const db = new MongoClient(process.env.LOCALDB_URL);
 
 app.use(express.urlencoded( {extended: true} ));
 app.use(express.json());
