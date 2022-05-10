@@ -45,12 +45,14 @@
                 <center>
                   <h4>Cash Memo</h4>
                   <p id="date"></p>
+                  <label for="customer-name">Customer Name: </label>
+                  <input type="text" id="customer-name">
                 </center>
                 <hr>
 
                 <div id="input">
                     <div class="input-group">
-                        <label for="name">Product's Name: </label>
+                        <label for="product-name">Product's Name: </label>
                         <input type="text" id="product-name">
                     </div>
 
@@ -70,7 +72,7 @@
                         <input type="radio" name="type" id="retail"> Retail
                     </div>
                      
-                    <button onclick="addItem()" class="btn btn-secondary">Add</button>
+                    <button onclick="controller.addItem()" class="btn btn-secondary">Add</button>
 
                     <div id="show-error"></div>
                 </div>
