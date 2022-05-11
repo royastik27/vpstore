@@ -3,15 +3,17 @@
 memo collection(Table)
 
 Memo ID
-Customer Name
 User ID
+Customer Name
 Date-Time [ Store as JS time]
-Product List [ Array of Objects ]
-Total Amount
+items [ Array of Objects ]
+Total Price
 paid amount
 paid = true / false
 
-Issue 2 - Input Caseamount in Retail
+Issue 1 - Input Caseamount in Retail
 
-TODO:
-2. MongoDB free cluster limit review
+TODO:s
+1. MongoDB free cluster limit review
+2. Add Evenlistner on 'Paid Amount' - click
+3. Make Paid Anyhow

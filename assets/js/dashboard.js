@@ -26,6 +26,28 @@ const controller = (function()
         return true;
     }
 
+    const addItems = async function(customerName, paidAmount)
+    {
+        let options = {
+            method: 'POST',
+            headers: {
+                'Content-Type': 
+                    'application/json;charset=utf-8'
+            },
+            body: JSON.stringify({
+                customerName: customerName,
+                items: items,
+                totalPrice: totalPrice,
+                paidAmount: paidAmount,
+                paid: (totalPrice === paidAmount) ? true : false
+            })
+        }
+
+        const res = await(await fetch("/memoapi", options)).json();
+    
+        return res;
+    }
+
     const findItem = async function(productName)
     {
         let options = {
@@ -53,8 +75,6 @@ const controller = (function()
 
         if(DOMitem.retail) price = item.mrp * DOMitem.quantity;
 
-        // console.log(price);
-
         return {
             serialNo: ++itemNumber,
             productName: item.productName,
@@ -72,6 +92,7 @@ const controller = (function()
             DOM.clearTable();
             DOM.DOMelements.totalPrice.textContent = totalPrice;
             DOM.DOMelements.saveMemo.classList.add('disabled');
+            DOM.DOMelements.payment.style.display = 'none';
         },
         addItem: async function() {
             const DOMitem = DOM.getItem();
@@ -102,6 +123,18 @@ const controller = (function()
 
             // UPDATING DOM
             DOM.addItem(newItem, totalPrice);
+        },
+        saveItems: async function() {
+            // GETTING PAID AMOUNT
+            let paidAmount = parseInt(DOM.DOMelements.paidAmount.value);
+            if(isNaN(paidAmount)) paidAmount = 0;
+
+            const customerName = DOM.DOMelements.customerName.value;
+
+            // CODE HERE
+            const res = await addItems(customerName, paidAmount);
+
+            if(res.success) console.log('Item Added');
         }
     }
 })();
@@ -120,13 +153,19 @@ const DOM = (function()
 
     const DOMcustomerName = document.getElementById('customer-name');
     const DOMtotalPrice = document.getElementById('total-price');
+
+    const DOMpayment = document.getElementById('payment');
+    const DOMpaidAmount = document.getElementById('paid-amount');
     const DOMsaveMemo = document.getElementById('save-memo');
 
     return {
         DOMelements: {
+            customerName: DOMcustomerName,
             table: DOMtable,
             errorEl: DOMerrorEl,
             totalPrice: DOMtotalPrice,
+            payment: DOMpayment,
+            paidAmount: DOMpaidAmount,
             saveMemo: DOMsaveMemo
         },
         clearTable: function() {
@@ -149,6 +188,7 @@ const DOM = (function()
             // CLEARING ERROR FIELD
             DOMerrorEl.textContent = '';
             DOMsaveMemo.classList.remove('disabled');
+            DOMpayment.style.display = 'block';
 
             const row = DOMtable.insertRow(item.serialNo); // same as controller.getItemNumber()
 

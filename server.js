@@ -2,7 +2,7 @@ const express = require('express');
 const session = require('express-session');
 const fs = require('fs');
 const path = require('path');
-const { MongoClient } = require('mongodb');
+const { MongoClient, ObjectId } = require('mongodb');
 
 const templateLogin = fs.readFileSync(path.join(__dirname, 'templates/login.html'), 'utf-8');
 
@@ -35,6 +35,7 @@ app.post('/', async (req, res) =>
     if(result)
     {
         const mySession = req.session;
+        mySession.userId = result._id;
         mySession.username = username;
         mySession.loggedIn = true;
 
@@ -49,6 +50,7 @@ app.use((req, res, next) =>
     const mySession = req.session;
 
     // DELETE THIS
+        mySession.userId = new ObjectId("627a30eeeb205fe35623a532");
         mySession.username = 'royastik27';
         mySession.loggedIn = true;
 
@@ -83,6 +85,24 @@ app.post('/productsapi', async (req, res) =>
             mrp: mrp }
         } );
     }
+});
+
+app.post('/memoapi', async (req, res) =>
+{
+    const newMemo = req.body;
+
+    newMemo.userId = req.session.userId;
+    newMemo.dateTime = new Date();
+
+    // DATABASE CONNECTION
+    await db.connect();
+
+    const result = await db.db('vpstore').collection('memos').insertOne(newMemo);
+
+    // CLOSING DATABASE CONNECTION
+    await db.close();
+
+    res.send( {success: true} );
 });
 
 app.get('/logout', (req, res) =>
