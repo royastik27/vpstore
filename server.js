@@ -2,115 +2,36 @@ const express = require('express');
 const session = require('express-session');
 const fs = require('fs');
 const path = require('path');
-const { MongoClient, ObjectId } = require('mongodb');
-
-const templateLogin = fs.readFileSync(path.join(__dirname, 'templates/login.html'), 'utf-8');
-
-const app = express();
+const { MongoClient } = require('mongodb');
 
 require('dotenv').config();
+
+const productController = require('./controllers/productController.js');
+const memoController = require('./controllers/memoController.js');
+const userController = require('./controllers/userController.js');
+
+const app = express();
 
 // DATABASE CLIENT
 // const db = new MongoClient(process.env.MONGODB_URL);
 const db = new MongoClient(process.env.LOCALDB_URL);
 
+// MIDDLEWARES
 app.use(express.urlencoded( {extended: true} ));
 app.use(express.json());
 app.use(session({resave: true, saveUninitialized: true, secret: 'amK2meAsirbaadKaro', cookie: { }}));
 app.use('/assets', express.static(path.join(__dirname, 'assets')));
 
-app.post('/', async (req, res) =>
-{
-    const username = req.body.username;
-    const password = req.body.password;
-
-    //DATABASE CONNECTION
-    await db.connect();
-
-    const result = await db.db('vpstore').collection('users').findOne( { username: username, password: password });
-
-    // CLOSING DATABASE CONNECTION
-    await db.close();
-
-    if(result)
-    {
-        const mySession = req.session;
-        mySession.userId = result._id;
-        mySession.username = username;
-        mySession.loggedIn = true;
-
-        res.redirect('/');
-    }
-    else res.send(templateLogin);
-});
+app.post('/', userController.login);
 
 // AUTHENTICATION
-app.use((req, res, next) =>
-{
-    const mySession = req.session;
+app.use(userController.authenticate);
 
-    // DELETE THIS
-        mySession.userId = new ObjectId("627a30eeeb205fe35623a532");
-        mySession.username = 'royastik27';
-        mySession.loggedIn = true;
+// APIs
+app.post('/productsapi', productController.findProduct);
+app.post('/memoapi', memoController.insertMemo);
 
-    if(!mySession.loggedIn) res.end(templateLogin);
-    else next();
-});
-
-app.post('/productsapi', async (req, res) =>
-{
-    const productName = req.body.productName;
-
-    //DATABASE CONNECTION
-    await db.connect();
-
-    const result = await db.db('vpstore').collection('products').findOne({ productName: new RegExp(productName, 'i') });
-
-    // CLOSING DATABASE CONNECTION
-    await db.close();
-
-    if(!result) res.send({ success: false, message: "NOT FOUND!"});
-    else
-    {
-        const productName = result.productName;
-        const casePrice = result.casePrice;
-        const price = result.price;        
-        const mrp = result.mrp;        
-    
-        res.send( { success: true, data: {
-            productName: productName,
-            casePrice: casePrice,
-            price: price,
-            mrp: mrp }
-        } );
-    }
-});
-
-app.post('/memoapi', async (req, res) =>
-{
-    const newMemo = req.body;
-
-    newMemo.userId = req.session.userId;
-    newMemo.dateTime = new Date();
-
-    // DATABASE CONNECTION
-    await db.connect();
-
-    const result = await db.db('vpstore').collection('memos').insertOne(newMemo);
-
-    // CLOSING DATABASE CONNECTION
-    await db.close();
-
-    res.send( {success: true} );
-});
-
-app.get('/logout', (req, res) =>
-{
-    req.session.destroy();
-
-    res.redirect('/');
-});
+app.get('/logout', userController.logout);
 
 app.get('/*', (req, res) =>
 {

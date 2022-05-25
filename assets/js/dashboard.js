@@ -13,11 +13,9 @@ const controller = (function()
      * itemNumber:  1 based [ table row: 0 based - 1st one is thead ]
     **/
 
-    const addTotalPrice = function(newPrice) { totalPrice += newPrice; }
-
     const validateItem = function(item)
     {
-        if(!item.caseAmount && !item.quantity)
+        if((!item.caseAmount && !item.quantity) || !(item.stationary ^ item.retail))
         {
             DOM.DOMelements.errorEl.textContent = 'Invalid Input!';
             return false;
@@ -26,8 +24,11 @@ const controller = (function()
         return true;
     }
 
-    const addItems = async function(customerName, paidAmount)
+    const postMemo = async function(customerName, paidAmount)
     {
+        // TAKING CEIL VALUE OF TOTALPRICE
+        totalPrice = Math.ceil(totalPrice);
+
         let options = {
             method: 'POST',
             headers: {
@@ -67,21 +68,19 @@ const controller = (function()
     const createItem = function(DOMitem, item)
     {
         // CALCULATING
-        let price = 0;
+        let price;
 
-        if(DOMitem.caseAmount)  price += item.casePrice * DOMitem.caseAmount;
-
-        if(DOMitem.quantity) price += item.price * DOMitem.quantity;
-
-        if(DOMitem.retail) price = item.mrp * DOMitem.quantity;
+        if(DOMitem.stationary)  price = (DOMitem.caseAmount * item.casePrice) + (DOMitem.quantity * item.price);
+        else    // for retail
+            price = (DOMitem.caseAmount * item.caseQuantity + DOMitem.quantity) * item.mrp;
 
         return {
             serialNo: ++itemNumber,
             productName: item.productName,
             caseAmount: DOMitem.caseAmount,
             quantity: DOMitem.quantity,
-            price: (DOMitem.stationary) ? item.price : item.mrp,
-            totalPrice: price
+            pricePerPiece: price / (DOMitem.caseAmount * item.caseQuantity + DOMitem.quantity),
+            price: price
         }
     }
 
@@ -118,13 +117,13 @@ const controller = (function()
             const newItem = createItem(DOMitem, item);
 
             // UPDATING CONTROLLER
-            items.push(newItem);
-            totalPrice += newItem.totalPrice;
+            items.push(newItem);items
+            totalPrice += newItem.price;
 
             // UPDATING DOM
             DOM.addItem(newItem, totalPrice);
         },
-        saveItems: async function() {
+        saveMemo: async function() {
             // GETTING PAID AMOUNT
             let paidAmount = parseInt(DOM.DOMelements.paidAmount.value);
             if(isNaN(paidAmount)) paidAmount = 0;
@@ -132,7 +131,7 @@ const controller = (function()
             const customerName = DOM.DOMelements.customerName.value;
 
             // CODE HERE
-            const res = await addItems(customerName, paidAmount);
+            const res = await postMemo(customerName, paidAmount);
 
             if(res.success) console.log('Item Added');
         }
@@ -197,8 +196,8 @@ const DOM = (function()
             const PRODUCTNAME = row.insertCell(1);
             const CASEAMOUNT = row.insertCell(2);
             const QUANTITY = row.insertCell(3);    
-            const PRICE = row.insertCell(4);
-            const TOTALPRICE = row.insertCell(5);
+            const PRICEPERPIECE = row.insertCell(4);
+            const PRICE = row.insertCell(5);
 
             // CELL CONTENTS
             SLNO.innerHTML = item.serialNo;
@@ -207,11 +206,11 @@ const DOM = (function()
             if(item.caseAmount)  CASEAMOUNT.innerHTML = item.caseAmount;
             if(item.quantity)    QUANTITY.innerHTML = item.quantity;    
             
-            PRICE.innerHTML = item.price;
-            
-            TOTALPRICE.innerHTML = item.totalPrice;
+            PRICEPERPIECE.innerHTML = item.pricePerPiece.toFixed(2);            
+            PRICE.innerHTML = item.price.toFixed(2);
 
-            DOMtotalPrice.textContent = totalPrice;
+            // Main Total Price
+            DOMtotalPrice.textContent = Math.ceil(totalPrice);
         }
     }
 })();

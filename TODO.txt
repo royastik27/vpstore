@@ -1,5 +1,7 @@
 1. Add Hashing
 
+
+
 memo collection(Table)
 
 Memo ID
@@ -11,9 +13,7 @@ Total Price
 paid amount
 paid = true / false
 
-Issue 1 - Input Caseamount in Retail
 
-TODO:s
-1. MongoDB free cluster limit review
-2. Add Evenlistner on 'Paid Amount' - click
-3. Make Paid Anyhow
+TODO:
+1. Add Evenlistner on 'Paid Amount' - click
+2. Initiate after saving - Initiate Button
