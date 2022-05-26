@@ -13,7 +13,9 @@ Total Price
 paid amount
 paid = true / false
 
-
 TODO:
 1. Add Evenlistner on 'Paid Amount' - click
-2. Initiate after saving - Initiate Button
+2. Initiate after saving - Initiate Button (Make DOM input clear function)
+3. View Memos
+4. Validate Memo - Customer Name*
+5. Add reset button after inputs (just add an onclick event with prebuilt function)
