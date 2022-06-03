@@ -27,7 +27,7 @@ const DOM = (function()
             paidAmount: DOMpaidAmount
         },
         clearInputs: function() {
-            DOMproductName.value = DOMcaseAmount.value = DOMquantity.value = '';
+            DOMproductName.value = DOMcaseAmount.value = DOMquantity.value = DOMerrorEl.textContent = '';
             DOMstationary.checked = true;
         },
         clearTable: function() {
@@ -45,8 +45,8 @@ const DOM = (function()
             DOMpayment.appendChild(DOMpaidAmount);  // input field
             
             DOMpayment.style.display = 'none';
-
-            DOMsaveMemo.textContent = 'Save'
+            
+            DOMsaveMemo.textContent = 'Save';
             DOMsaveMemo.classList.add('disabled');
         },
         showPayment: function() {
@@ -56,7 +56,7 @@ const DOM = (function()
             const val = DOMpayment.lastChild.value; // coz I used appendChild in clearPayment()
 
             DOMpayment.removeChild(DOMpayment.lastChild);
-            DOMpayment.firstChild.nextSibling.textContent += val;
+            DOMpayment.firstChild.nextSibling.textContent += `  ${val}`;
         },
         getItem: function() {
             return {

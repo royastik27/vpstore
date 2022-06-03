@@ -1,7 +1,5 @@
 1. Add Hashing
 
-
-
 memo collection(Table)
 
 Memo ID
@@ -19,3 +17,5 @@ TODO:
 3. View Memos
 4. Validate Memo - Customer Name*
 5. Add reset button after inputs (just add an onclick event with prebuilt function)
+6. Think about negative number input
+7. Show error for No paid amount saving - Line: 130

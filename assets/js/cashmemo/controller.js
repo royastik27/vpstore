@@ -127,6 +127,8 @@ const MemoController = (function()
             let paidAmount = parseInt(DOM.DOMelements.paidAmount.value);
             if(isNaN(paidAmount)) paidAmount = 0;
 
+            if(!paidAmount) return; // SHOW ERROR HERE
+
             const customerName = DOM.DOMelements.customerName.value;
 
             const res = await postMemo(customerName, paidAmount);

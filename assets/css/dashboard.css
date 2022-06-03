@@ -7,10 +7,12 @@ nav {
 }
 
 #memo {
-    margin: 2rem;
+    width: 98vw;
+    margin: 2rem auto;
     padding: 1rem;
     border: 0.1rem dashed brown;
     font-size: 1.2rem;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
 }
 
 #memo h4 {
@@ -22,12 +24,35 @@ nav {
     display: inline;
 }
 
+#memo input {
+    color: #212529;
+    background-color: #fff;
+    background-clip: padding-box;
+    border: 1px solid #ced4da;
+    border-radius: 0.25rem;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+}
+
+#memo input:hover {
+    background-color: #dde0e3;
+}
+
+#memo input:focus {
+    color: #212529;
+    /* border-color: #86b7fe; */
+    outline: 0;
+    box-shadow: 0 0 0 0.15rem rgba(13, 110, 253, 0.25);
+}
+
 #show-error {
     color: red;
 }
 
 #memo button {
-    margin: 1rem;
+    margin: 1rem 0rem;
+    padding: 0.3rem 2rem;
+    border-radius: 2rem;
+    box-shadow: #5E5DF0 0 0.6rem 1.25rem -0.6rem;
 }
 
 @media (max-width: 1200px) {
@@ -35,4 +60,9 @@ nav {
         margin-top: 1rem;
         display: block;
     }
+}
+
+#total-price {
+    color: red;
+    font-weight: bold;
 }
